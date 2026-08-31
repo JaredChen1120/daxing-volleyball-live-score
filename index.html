@@ -137,21 +137,24 @@ async function init(){
       await signInAnonymously(auth);
       onValue(gameRef, async snap=>{
         if(snap.exists()){
-          state={...DEFAULT,...snap.val()};render();setStatus("已連線，多人可控制");
+          state={...DEFAULT,...snap.val()};
+          render();
+          setStatus("已連線，多人可控制");
         }else{
-          await set(gameRef,state);setStatus("房間已建立，多人可控制");
-        }
-      });
-      await makeQR();
-    }else{
-          await set(gameRef,state);setStatus("房間已建立，可控制");
+          await set(gameRef,state);
+          setStatus("房間已建立，多人可控制");
         }
       });
       await makeQR();
     }else{
       onValue(gameRef,snap=>{
-        if(snap.exists()){state={...DEFAULT,...snap.val()};render();setStatus("即時同步中")}
-        else setStatus("等待比賽建立");
+        if(snap.exists()){
+          state={...DEFAULT,...snap.val()};
+          render();
+          setStatus("即時同步中");
+        }else{
+          setStatus("等待比賽建立");
+        }
       });
     }
   }catch(e){console.error(e);setStatus("連線失敗，請檢查 Firebase 設定")}
