@@ -21,7 +21,7 @@ button,input{font:inherit}.hidden{display:none!important}.wrap{max-width:980px;m
 .team.serving{outline:7px solid #22c55e;outline-offset:-7px;box-shadow:0 0 0 3px rgba(34,197,94,.2),0 12px 34px rgba(0,0,0,.3)}.teamA{background:linear-gradient(160deg,#0ea5e9 0%,#0369a1 55%,#075985 100%)}.teamB{background:linear-gradient(160deg,#fb7185 0%,#e11d48 55%,#9f1239 100%)}.teamA .name,.teamA .score,.teamB .name,.teamB .score{color:#fff;text-shadow:0 3px 12px rgba(0,0,0,.22)}.teamA .serve,.teamB .serve{color:#dcfce7;text-shadow:0 2px 8px rgba(0,0,0,.3)}.mid{background:#0b1525;border:1px solid #223149;border-radius:22px;padding:12px 8px}.name{font-size:clamp(26px,4.5vw,68px);font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:95%}
 .score{font-size:clamp(110px,25vw,360px);line-height:.9;font-weight:1000;letter-spacing:-.06em}.serve{font-size:clamp(17px,2vw,28px);font-weight:900;color:#86efac;min-height:1.4em}
 .mid{display:flex;flex-direction:column;justify-content:center;align-items:center}.setlabel{color:var(--mut);font-weight:800}.sets{font-size:clamp(54px,8vw,110px);font-weight:1000}.setno{font-size:clamp(18px,2vw,30px);font-weight:900;color:#d7e1ee}.event{font-size:clamp(20px,3vw,36px);font-weight:950}
-.control{padding:16px;max-width:900px;margin:auto}.controlgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.ctrl{padding:15px}.ctrl:first-child{border-color:#0ea5e9;box-shadow:inset 0 0 0 2px rgba(14,165,233,.12)}.ctrl:last-child{border-color:#f43f5e;box-shadow:inset 0 0 0 2px rgba(244,63,94,.12)}.ctrl h2{margin:0 0 10px}.plus{width:100%;min-height:155px;border:0;border-radius:22px;color:#fff;font-size:74px;font-weight:1000;cursor:pointer}.aa{background:#0369a1}.bb{background:#be123c}
+.control{padding:16px;max-width:900px;margin:auto}.controlgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.ctrl{padding:15px}.ctrl:first-child{border-color:#0ea5e9;box-shadow:inset 0 0 0 2px rgba(14,165,233,.12)}.ctrl:last-child{border-color:#f43f5e;box-shadow:inset 0 0 0 2px rgba(244,63,94,.12)}.ctrl h2{margin:0 0 4px}.ctrlscore{font-size:clamp(72px,20vw,150px);line-height:.95;font-weight:1000;text-align:center;letter-spacing:-.05em;margin:4px 0}.ctrlserve{text-align:center;min-height:1.5em;color:#86efac;font-weight:900;margin-bottom:10px}.plus{width:100%;min-height:120px;border:0;border-radius:22px;color:#fff;font-size:64px;font-weight:1000;cursor:pointer}.aa{background:#0369a1}.bb{background:#be123c}
 .twobtn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.admin{margin-top:14px;padding:15px}.admin .btn{flex:1}.setbar{text-align:center;padding:12px;margin-bottom:14px;font-size:23px;font-weight:900}
 .share{margin-top:14px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}.share canvas{background:#fff;padding:8px;border-radius:12px}.sharelink{word-break:break-all;color:#bfdbfe}
 .watch{max-width:980px;margin:auto;padding:16px}.watch .scoreboard{min-height:auto;padding:0}.watchtitle{text-align:center;margin:12px 0;color:var(--mut);font-weight:800}
@@ -59,8 +59,8 @@ button,input{font:inherit}.hidden{display:none!important}.wrap{max-width:980px;m
   <div class="row" style="margin-bottom:12px"><input id="nameAC" class="input" value="A隊"><input id="nameBC" class="input" value="B隊"></div>
   <div class="setbar card">局數 <span id="setsAC">0</span>：<span id="setsBC">0</span> ｜ 第 <span id="setNoC">1</span> 局</div>
   <div class="controlgrid">
-    <div class="ctrl card"><h2 id="titleAC">A隊</h2><button id="plusA" class="plus aa">+1</button><div class="twobtn"><button id="minusA" class="btn">−1</button><button id="serveA" class="btn good">發球權</button></div></div>
-    <div class="ctrl card"><h2 id="titleBC">B隊</h2><button id="plusB" class="plus bb">+1</button><div class="twobtn"><button id="minusB" class="btn">−1</button><button id="serveB" class="btn good">發球權</button></div></div>
+    <div class="ctrl card"><h2 id="titleAC">A隊</h2><div id="scoreAC" class="ctrlscore">0</div><div id="serveAC" class="ctrlserve"></div><button id="plusA" class="plus aa">+1</button><div class="twobtn"><button id="minusA" class="btn">−1</button><button id="serveA" class="btn good">發球權</button></div></div>
+    <div class="ctrl card"><h2 id="titleBC">B隊</h2><div id="scoreBC" class="ctrlscore">0</div><div id="serveBC" class="ctrlserve"></div><button id="plusB" class="plus bb">+1</button><div class="twobtn"><button id="minusB" class="btn">−1</button><button id="serveB" class="btn good">發球權</button></div></div>
   </div>
   <div class="admin card"><div class="row"><button id="swapBtn" class="btn">⇄ 交換場地</button><button id="nextSetBtn" class="btn primary">下一局</button><button id="resetBtn" class="btn danger">整場重置</button></div><div id="statusC" class="mut" style="margin-top:10px"></div></div>
   <div class="share card">
@@ -115,6 +115,8 @@ function render(){
     $("serveB"+s).textContent=state.serving==="B"?"● 發球":"";
   });
   $("nameAC").value=state.teamA;$("nameBC").value=state.teamB;$("titleAC").textContent=state.teamA;$("titleBC").textContent=state.teamB;
+  $("scoreAC").textContent=state.scoreA;$("scoreBC").textContent=state.scoreB;
+  $("serveAC").textContent=state.serving==="A"?"🏐 發球":"";$("serveBC").textContent=state.serving==="B"?"🏐 發球":"";
   $("setsAC").textContent=state.setsA;$("setsBC").textContent=state.setsB;$("setNoC").textContent=state.setNo;
 }
 function route(m){room=cleanRoom($("roomInput").value);location.search="?mode="+m+"&room="+encodeURIComponent(room)}
