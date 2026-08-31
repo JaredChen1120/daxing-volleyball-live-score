@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07111f">
-<title>大興排球即時比分🏐</title>
+<title>大興排球即時比分</title>
 <link rel="manifest" href="manifest.webmanifest">
 <style>
 :root{--bg:#07111f;--card:#101d31;--line:#26364d;--txt:#f8fafc;--mut:#9fb0c4;--a:#0ea5e9;--b:#f43f5e;--ok:#22c55e}
@@ -94,7 +94,7 @@ const firebaseConfig = {
   measurementId: "G-MQR7E849F8"
 };
 
-const DEFAULT={teamA:"A隊",teamB:"B隊",scoreA:0,scoreB:0,setsA:0,setsB:0,setNo:1,serving:"A",ownerUid:""};
+const DEFAULT={teamA:"A隊",teamB:"B隊",scoreA:0,scoreB:0,setsA:0,setsB:0,setNo:1,serving:"A"};
 const $=id=>document.getElementById(id);
 const cleanRoom=s=>(s||"DAXING01").toUpperCase().replace(/[^A-Z0-9_-]/g,"").slice(0,20)||"DAXING01";
 const params=new URLSearchParams(location.search);
@@ -134,14 +134,16 @@ async function init(){
     remote=true;
     const gameRef=ref(db,"games/"+room);
     if(mode==="control"){
-      const cred=await signInAnonymously(auth);
-      state.ownerUid=cred.user.uid;
+      await signInAnonymously(auth);
       onValue(gameRef, async snap=>{
         if(snap.exists()){
-          const incoming=snap.val();
-          if(incoming.ownerUid===cred.user.uid){state={...DEFAULT,...incoming};render();setStatus("已連線，可控制")}
-          else{setStatus("這個房間已由另一台裝置建立，請換房間代碼");disableControls()}
+          state={...DEFAULT,...snap.val()};render();setStatus("已連線，多人可控制");
         }else{
+          await set(gameRef,state);setStatus("房間已建立，多人可控制");
+        }
+      });
+      await makeQR();
+    }else{
           await set(gameRef,state);setStatus("房間已建立，可控制");
         }
       });
@@ -154,17 +156,16 @@ async function init(){
     }
   }catch(e){console.error(e);setStatus("連線失敗，請檢查 Firebase 設定")}
 }
-function disableControls(){document.querySelectorAll("#control button,#control input").forEach(e=>{if(e.id!=="backBtn")e.disabled=true})}
 async function push(){render();if(remote)await set(ref(db,"games/"+room),state)}
 function mut(f){f();push()}
-$("plusA").onclick=()=>mut(()=>state.scoreA++);$("plusB").onclick=()=>mut(()=>state.scoreB++);
+$("plusA").onclick=()=>mut(()=>{state.scoreA++;state.serving="A"});$("plusB").onclick=()=>mut(()=>{state.scoreB++;state.serving="B"});
 $("minusA").onclick=()=>mut(()=>state.scoreA=Math.max(0,state.scoreA-1));$("minusB").onclick=()=>mut(()=>state.scoreB=Math.max(0,state.scoreB-1));
 $("serveA").onclick=()=>mut(()=>state.serving="A");$("serveB").onclick=()=>mut(()=>state.serving="B");
 $("nameAC").onchange=e=>mut(()=>state.teamA=(e.target.value.trim()||"A隊").slice(0,18));
 $("nameBC").onchange=e=>mut(()=>state.teamB=(e.target.value.trim()||"B隊").slice(0,18));
 $("swapBtn").onclick=()=>mut(()=>{[state.teamA,state.teamB]=[state.teamB,state.teamA];[state.scoreA,state.scoreB]=[state.scoreB,state.scoreA];[state.setsA,state.setsB]=[state.setsB,state.setsA];state.serving=state.serving==="A"?"B":"A"});
 $("nextSetBtn").onclick=()=>mut(()=>{if(state.scoreA>state.scoreB)state.setsA++;else if(state.scoreB>state.scoreA)state.setsB++;state.scoreA=0;state.scoreB=0;state.setNo++;state.serving=state.serving==="A"?"B":"A"});
-$("resetBtn").onclick=()=>{if(confirm("確定整場歸零？")){const uid=state.ownerUid;state={...DEFAULT,teamA:state.teamA,teamB:state.teamB,ownerUid:uid};push()}};
+$("resetBtn").onclick=()=>{if(confirm("確定整場歸零？")){state={...DEFAULT,teamA:state.teamA,teamB:state.teamB};push()}};
 
 async function makeQR(){
   const watchURL=location.origin+location.pathname+"?mode=watch&room="+encodeURIComponent(room);
