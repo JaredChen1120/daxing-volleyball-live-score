@@ -86,6 +86,18 @@ button,input{font:inherit}button{touch-action:manipulation;-webkit-tap-highlight
   #control .admin .btn{height:44px;min-height:44px;font-size:13px}
 }
 
+
+/* 僅手機控制台可各自切換左右視角；大螢幕與觀眾畫面維持原本方向 */
+#control .controlgrid.view-reversed .ctrlA{order:2}
+#control .controlgrid.view-reversed .ctrlB{order:1}
+#control .nameRow.view-reversed #nameAC{order:2}
+#control .nameRow.view-reversed #nameBC{order:1}
+#control .viewbtn{position:absolute;left:8px;top:50%;transform:translateY(-50%);min-height:38px;padding:6px 10px;border-radius:10px;font-size:13px;background:#475569}
+@media (orientation:landscape) and (max-height:560px){
+  #control .setbar{padding-left:86px;padding-right:66px}
+  #control .viewbtn{left:5px;min-height:26px;height:26px;padding:2px 7px;border-radius:8px;font-size:11px}
+}
+
 </style>
 </head>
 <body>
@@ -116,11 +128,11 @@ button,input{font:inherit}button{touch-action:manipulation;-webkit-tap-highlight
 
 <section id="control" class="control hidden">
   <div class="top"><div><strong>📱 手機控制台</strong><div class="tiny">ROOM <span class="roomLabel"></span></div></div><button id="backBtn" class="btn">返回</button></div>
-  <div class="row" style="margin-bottom:12px"><input id="nameAC" class="input" value="A隊"><input id="nameBC" class="input" value="B隊"></div>
-  <div class="setbar card">局數 <span id="setsAC">0</span>：<span id="setsBC">0</span> ｜ 第 <span id="setNoC">1</span> 局 <button id="soundBtn" class="btn soundbtn" type="button">🔊 ON</button></div>
+  <div id="nameRow" class="row nameRow" style="margin-bottom:12px"><input id="nameAC" class="input" value="A隊"><input id="nameBC" class="input" value="B隊"></div>
+  <div class="setbar card"><button id="viewBtn" class="btn viewbtn" type="button">↔ 視角 A｜B</button>局數 <span id="setsAC">0</span>：<span id="setsBC">0</span> ｜ 第 <span id="setNoC">1</span> 局 <button id="soundBtn" class="btn soundbtn" type="button">🔊 ON</button></div>
   <div class="controlgrid">
-    <div class="ctrl card"><h2 id="titleAC">A隊</h2><div id="scoreAC" class="ctrlscore">0</div><div id="serveAC" class="ctrlserve"></div><button id="plusA" class="plus aa">+1</button><div class="twobtn"><button id="minusA" class="btn">−1</button><button id="serveA" class="btn good">發球權</button></div></div>
-    <div class="ctrl card"><h2 id="titleBC">B隊</h2><div id="scoreBC" class="ctrlscore">0</div><div id="serveBC" class="ctrlserve"></div><button id="plusB" class="plus bb">+1</button><div class="twobtn"><button id="minusB" class="btn">−1</button><button id="serveB" class="btn good">發球權</button></div></div>
+    <div class="ctrl card ctrlA"><h2 id="titleAC">A隊</h2><div id="scoreAC" class="ctrlscore">0</div><div id="serveAC" class="ctrlserve"></div><button id="plusA" class="plus aa">+1</button><div class="twobtn"><button id="minusA" class="btn">−1</button><button id="serveA" class="btn good">發球權</button></div></div>
+    <div class="ctrl card ctrlB"><h2 id="titleBC">B隊</h2><div id="scoreBC" class="ctrlscore">0</div><div id="serveBC" class="ctrlserve"></div><button id="plusB" class="plus bb">+1</button><div class="twobtn"><button id="minusB" class="btn">−1</button><button id="serveB" class="btn good">發球權</button></div></div>
   </div>
   <div class="admin card"><div class="row"><button id="swapBtn" class="btn">⇄ 交換場地</button><button id="nextSetBtn" class="btn primary">下一局</button><button id="resetBtn" class="btn danger">整場重置</button></div><div id="statusC" class="mut" style="margin-top:10px"></div></div>
   <div class="share card">
@@ -222,6 +234,17 @@ async function init(){
   }catch(e){console.error(e);setStatus("連線失敗，請檢查 Firebase 設定")}
 }
 async function push(){render();if(remote)await set(ref(db,"games/"+room),state)}
+
+let controllerReversed=false;
+function updateControllerView(){
+  const grid=document.querySelector("#control .controlgrid");
+  const names=$("nameRow");
+  if(grid) grid.classList.toggle("view-reversed",controllerReversed);
+  if(names) names.classList.toggle("view-reversed",controllerReversed);
+  if($("viewBtn")) $("viewBtn").textContent=controllerReversed?"↔ 視角 B｜A":"↔ 視角 A｜B";
+}
+if($("viewBtn")) $("viewBtn").onclick=()=>{controllerReversed=!controllerReversed;updateControllerView()};
+updateControllerView();
 
 let soundOn=true;
 let audioCtx=null;
