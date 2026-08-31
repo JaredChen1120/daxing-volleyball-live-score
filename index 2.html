@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>大興排球即時比分</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#07111f;--card:#101d31;--line:#26364d;--txt:#f8fafc;--mut:#9fb0c4;--a:#0ea5e9;--b:#f43f5e;--ok:#22c55e}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+button,input{font:inherit}.hidden{display:none!important}.wrap{max-width:980px;margin:auto;padding:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px}
+.setup{margin-top:5vh;padding:24px}.setup h1{margin:0 0 8px;font-size:clamp(30px,6vw,50px)}.mut{color:var(--mut)}
+.row{display:flex;gap:12px;flex-wrap:wrap}.input{flex:1;min-width:180px;padding:14px 16px;border-radius:14px;border:1px solid #38506f;background:#081423;color:#fff;font-size:18px}
+.btn{border:0;border-radius:14px;padding:14px 18px;min-height:48px;color:#fff;background:#334155;font-weight:850;cursor:pointer}.primary{background:#2563eb}.good{background:#15803d}.danger{background:#b91c1c}
+.modegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.modegrid .btn{min-height:92px;font-size:19px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.tiny{font-size:13px;color:var(--mut)}
+.scoreboard{min-height:100vh;padding:16px;display:grid;grid-template-rows:auto 1fr auto;gap:12px}
+.teams{display:grid;grid-template-columns:1fr 140px 1fr;gap:14px;align-items:stretch}
+.team{border:1px solid var(--line);border-radius:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;box-shadow:0 12px 34px rgba(0,0,0,.28)}
+.team.serving{outline:7px solid #22c55e;outline-offset:-7px;box-shadow:0 0 0 3px rgba(34,197,94,.2),0 12px 34px rgba(0,0,0,.3)}.teamA{background:linear-gradient(160deg,#0ea5e9 0%,#0369a1 55%,#075985 100%)}.teamB{background:linear-gradient(160deg,#fb7185 0%,#e11d48 55%,#9f1239 100%)}.teamA .name,.teamA .score,.teamB .name,.teamB .score{color:#fff;text-shadow:0 3px 12px rgba(0,0,0,.22)}.teamA .serve,.teamB .serve{color:#dcfce7;text-shadow:0 2px 8px rgba(0,0,0,.3)}.mid{background:#0b1525;border:1px solid #223149;border-radius:22px;padding:12px 8px}.name{font-size:clamp(26px,4.5vw,68px);font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:95%}
+.score{font-size:clamp(110px,25vw,360px);line-height:.9;font-weight:1000;letter-spacing:-.06em}.serve{font-size:clamp(17px,2vw,28px);font-weight:900;color:#86efac;min-height:1.4em}
+.mid{display:flex;flex-direction:column;justify-content:center;align-items:center}.setlabel{color:var(--mut);font-weight:800}.sets{font-size:clamp(54px,8vw,110px);font-weight:1000}.setno{font-size:clamp(18px,2vw,30px);font-weight:900;color:#d7e1ee}.event{font-size:clamp(20px,3vw,36px);font-weight:950}
+.control{padding:16px;max-width:900px;margin:auto}.controlgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.ctrl{padding:15px}.ctrl:first-child{border-color:#0ea5e9;box-shadow:inset 0 0 0 2px rgba(14,165,233,.12)}.ctrl:last-child{border-color:#f43f5e;box-shadow:inset 0 0 0 2px rgba(244,63,94,.12)}.ctrl h2{margin:0 0 4px}.ctrlscore{font-size:clamp(72px,20vw,150px);line-height:.95;font-weight:1000;text-align:center;letter-spacing:-.05em;margin:4px 0}.ctrlserve{text-align:center;min-height:1.5em;color:#86efac;font-weight:900;margin-bottom:10px}.plus{width:100%;min-height:120px;border:0;border-radius:22px;color:#fff;font-size:64px;font-weight:1000;cursor:pointer}.aa{background:#0369a1}.bb{background:#be123c}
+.twobtn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.admin{margin-top:14px;padding:15px}.admin .btn{flex:1}.setbar{text-align:center;padding:12px;margin-bottom:14px;font-size:23px;font-weight:900}
+.share{margin-top:14px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}.share canvas{background:#fff;padding:8px;border-radius:12px}.sharelink{word-break:break-all;color:#bfdbfe}
+.watch{max-width:980px;margin:auto;padding:16px}.watch .scoreboard{min-height:auto;padding:0}.watchtitle{text-align:center;margin:12px 0;color:var(--mut);font-weight:800}
+@media(max-width:700px){.modegrid{grid-template-columns:1fr}.teams{grid-template-columns:1fr 82px 1fr;gap:7px}.score{font-size:clamp(78px,29vw,170px)}.name{font-size:clamp(20px,6vw,38px)}.controlgrid{grid-template-columns:1fr}.share{grid-template-columns:1fr;text-align:center}.share canvas{margin:auto}}
+
+/* 手機橫向控制台：雙隊同畫面、比分縮小、+1 放大 */
+@media (orientation:landscape) and (max-height:520px){
+  body{overflow-y:auto}
+  #control.control{max-width:none;width:100%;padding:6px 8px}
+  #control .top{margin-bottom:5px;min-height:30px}
+  #control .top strong{font-size:16px}
+  #control .top .tiny{display:none}
+  #control #backBtn{min-height:32px;padding:5px 12px;border-radius:10px;font-size:14px}
+  #control>.row{margin-bottom:5px!important;gap:6px;flex-wrap:nowrap}
+  #control .input{min-width:0;height:34px;padding:5px 9px;border-radius:10px;font-size:15px}
+  #control .setbar{margin-bottom:6px;padding:5px 8px;border-radius:12px;font-size:17px;line-height:1.15}
+  #control .controlgrid{grid-template-columns:1fr 1fr;gap:8px}
+  #control .ctrl{padding:7px 8px;border-radius:16px;display:grid;grid-template-rows:auto auto auto 1fr auto;align-items:center}
+  #control .ctrl h2{margin:0;text-align:center;font-size:clamp(17px,3.5vw,24px);line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #control .ctrlscore{font-size:clamp(42px,10vw,64px);line-height:.82;margin:2px 0}
+  #control .ctrlserve{min-height:17px;margin-bottom:3px;font-size:13px;line-height:1.1}
+  #control .plus{min-height:82px;border-radius:16px;font-size:58px;line-height:1;font-weight:1000}
+  #control .twobtn{gap:6px;margin-top:6px}
+  #control .twobtn .btn{min-height:34px;padding:5px 8px;border-radius:10px;font-size:14px}
+  #control .admin{margin-top:6px;padding:6px;border-radius:14px}
+  #control .admin .row{gap:6px;flex-wrap:nowrap}
+  #control .admin .btn{min-height:36px;padding:5px 8px;border-radius:10px;font-size:13px;white-space:nowrap}
+  #control #statusC{display:none}
+  #control .share{display:none}
+}
+
+</style>
+</head>
+<body>
+
+<section id="setup" class="wrap">
+  <div class="setup card">
+    <h1>🏐 大興排球即時比分</h1>
+    <p class="mut">同一場比賽使用相同房間代碼。手機負責控制，電視顯示大比分，QR Code 分享給其他人看即時比分。</p>
+    <div class="row"><input id="roomInput" class="input" value="DAXING01" maxlength="20" aria-label="房間代碼"></div>
+    <div class="modegrid">
+      <button id="displayBtn" class="btn primary">📺 電視大螢幕</button>
+      <button id="controlBtn" class="btn good">📱 手機控制台</button>
+      <button id="watchBtn" class="btn">👀 觀眾即時比分</button>
+    </div>
+    <p id="statusSetup" class="mut"></p>
+  </div>
+</section>
+
+<section id="display" class="scoreboard hidden">
+  <div class="top"><div class="event">大興排球即時比分</div><div class="tiny">ROOM <span class="roomLabel"></span></div></div>
+  <div class="teams">
+    <div id="teamACardD" class="team teamA"><div id="nameAD" class="name">A隊</div><div id="scoreAD" class="score">0</div><div id="serveAD" class="serve"></div></div>
+    <div class="mid"><div class="setlabel">SETS</div><div class="sets"><span id="setsAD">0</span>:<span id="setsBD">0</span></div><div class="setno">第 <span id="setNoD">1</span> 局</div></div>
+    <div id="teamBCardD" class="team teamB"><div id="nameBD" class="name">B隊</div><div id="scoreBD" class="score">0</div><div id="serveBD" class="serve"></div></div>
+  </div>
+  <div class="top"><div class="tiny">即時同步</div><div id="statusD" class="tiny"></div></div>
+</section>
+
+<section id="control" class="control hidden">
+  <div class="top"><div><strong>📱 手機控制台</strong><div class="tiny">ROOM <span class="roomLabel"></span></div></div><button id="backBtn" class="btn">返回</button></div>
+  <div class="row" style="margin-bottom:12px"><input id="nameAC" class="input" value="A隊"><input id="nameBC" class="input" value="B隊"></div>
+  <div class="setbar card">局數 <span id="setsAC">0</span>：<span id="setsBC">0</span> ｜ 第 <span id="setNoC">1</span> 局</div>
+  <div class="controlgrid">
+    <div class="ctrl card"><h2 id="titleAC">A隊</h2><div id="scoreAC" class="ctrlscore">0</div><div id="serveAC" class="ctrlserve"></div><button id="plusA" class="plus aa">+1</button><div class="twobtn"><button id="minusA" class="btn">−1</button><button id="serveA" class="btn good">發球權</button></div></div>
+    <div class="ctrl card"><h2 id="titleBC">B隊</h2><div id="scoreBC" class="ctrlscore">0</div><div id="serveBC" class="ctrlserve"></div><button id="plusB" class="plus bb">+1</button><div class="twobtn"><button id="minusB" class="btn">−1</button><button id="serveB" class="btn good">發球權</button></div></div>
+  </div>
+  <div class="admin card"><div class="row"><button id="swapBtn" class="btn">⇄ 交換場地</button><button id="nextSetBtn" class="btn primary">下一局</button><button id="resetBtn" class="btn danger">整場重置</button></div><div id="statusC" class="mut" style="margin-top:10px"></div></div>
+  <div class="share card">
+    <canvas id="qr" width="180" height="180"></canvas>
+    <div><strong>分享給觀眾</strong><p class="mut">掃描 QR Code 後，只會看到即時比分，不會出現控制按鈕。</p><div id="watchLink" class="sharelink"></div></div>
+  </div>
+</section>
+
+<section id="watch" class="watch hidden">
+  <div class="watchtitle">👀 觀眾即時比分 ｜ ROOM <span class="roomLabel"></span></div>
+  <div class="scoreboard">
+    <div></div>
+    <div class="teams">
+      <div id="teamACardW" class="team teamA"><div id="nameAW" class="name">A隊</div><div id="scoreAW" class="score">0</div><div id="serveAW" class="serve"></div></div>
+      <div class="mid"><div class="setlabel">SETS</div><div class="sets"><span id="setsAW">0</span>:<span id="setsBW">0</span></div><div class="setno">第 <span id="setNoW">1</span> 局</div></div>
+      <div id="teamBCardW" class="team teamB"><div id="nameBW" class="name">B隊</div><div id="scoreBW" class="score">0</div><div id="serveBW" class="serve"></div></div>
+    </div>
+    <div id="statusW" class="watchtitle"></div>
+  </div>
+</section>
+
+<script type="module">
+const firebaseConfig = {
+  apiKey: "AIzaSyBD4F1rl-FfgEntksp612kgNLqJmbGAPxw",
+  authDomain: "daxing-volleyball-score.firebaseapp.com",
+  databaseURL: "https://daxing-volleyball-score-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "daxing-volleyball-score",
+  storageBucket: "daxing-volleyball-score.firebasestorage.app",
+  messagingSenderId: "231387122251",
+  appId: "1:231387122251:web:ecd65c4f2be0b704bb1bce",
+  measurementId: "G-MQR7E849F8"
+};
+
+const DEFAULT={teamA:"A隊",teamB:"B隊",scoreA:0,scoreB:0,setsA:0,setsB:0,setNo:1,serving:"A"};
+const $=id=>document.getElementById(id);
+const cleanRoom=s=>(s||"DAXING01").toUpperCase().replace(/[^A-Z0-9_-]/g,"").slice(0,20)||"DAXING01";
+const params=new URLSearchParams(location.search);
+let mode=params.get("mode")||"", room=cleanRoom(params.get("room")||"");
+let state={...DEFAULT}, remote=false, db, ref, set, onValue, auth, signInAnonymously;
+
+function configured(){return firebaseConfig.apiKey&&firebaseConfig.databaseURL&&firebaseConfig.projectId}
+function setStatus(t){["statusSetup","statusC","statusD","statusW"].forEach(id=>{if($(id))$(id).textContent=t})}
+function render(){
+  document.querySelectorAll(".roomLabel").forEach(e=>e.textContent=room);
+  ["D","W"].forEach(s=>{
+    $("nameA"+s).textContent=state.teamA;$("nameB"+s).textContent=state.teamB;
+    $("scoreA"+s).textContent=state.scoreA;$("scoreB"+s).textContent=state.scoreB;
+    $("setsA"+s).textContent=state.setsA;$("setsB"+s).textContent=state.setsB;$("setNo"+s).textContent=state.setNo;
+    $("teamACard"+s).classList.toggle("serving",state.serving==="A");
+    $("teamBCard"+s).classList.toggle("serving",state.serving==="B");
+    $("serveA"+s).textContent=state.serving==="A"?"● 發球":"";
+    $("serveB"+s).textContent=state.serving==="B"?"● 發球":"";
+  });
+  $("nameAC").value=state.teamA;$("nameBC").value=state.teamB;$("titleAC").textContent=state.teamA;$("titleBC").textContent=state.teamB;
+  $("scoreAC").textContent=state.scoreA;$("scoreBC").textContent=state.scoreB;
+  $("serveAC").textContent=state.serving==="A"?"🏐 發球":"";$("serveBC").textContent=state.serving==="B"?"🏐 發球":"";
+  $("setsAC").textContent=state.setsA;$("setsBC").textContent=state.setsB;$("setNoC").textContent=state.setNo;
+}
+function route(m){room=cleanRoom($("roomInput").value);location.search="?mode="+m+"&room="+encodeURIComponent(room)}
+$("displayBtn").onclick=()=>route("display");$("controlBtn").onclick=()=>route("control");$("watchBtn").onclick=()=>route("watch");$("backBtn").onclick=()=>location.href=location.pathname;
+
+async function init(){
+  if(!mode){setStatus(configured()?"已設定即時同步":"尚未填入 Firebase 設定");return}
+  $("setup").classList.add("hidden");$(mode).classList.remove("hidden");render();
+  if(!configured()){setStatus("尚未設定即時同步資料庫");return}
+  try{
+    const appMod=await import("https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js");
+    const dbMod=await import("https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js");
+    const authMod=await import("https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js");
+    const app=appMod.initializeApp(firebaseConfig);
+    db=dbMod.getDatabase(app);ref=dbMod.ref;set=dbMod.set;onValue=dbMod.onValue;
+    auth=authMod.getAuth(app);signInAnonymously=authMod.signInAnonymously;
+    remote=true;
+    const gameRef=ref(db,"games/"+room);
+    if(mode==="control"){
+      await signInAnonymously(auth);
+      onValue(gameRef, async snap=>{
+        if(snap.exists()){
+          state={...DEFAULT,...snap.val()};
+          render();
+          setStatus("已連線，多人可控制");
+        }else{
+          await set(gameRef,state);
+          setStatus("房間已建立，多人可控制");
+        }
+      });
+      await makeQR();
+    }else{
+      onValue(gameRef,snap=>{
+        if(snap.exists()){
+          state={...DEFAULT,...snap.val()};
+          render();
+          setStatus("即時同步中");
+        }else{
+          setStatus("等待比賽建立");
+        }
+      });
+    }
+  }catch(e){console.error(e);setStatus("連線失敗，請檢查 Firebase 設定")}
+}
+async function push(){render();if(remote)await set(ref(db,"games/"+room),state)}
+function mut(f){f();push()}
+$("plusA").onclick=()=>mut(()=>{state.scoreA++;state.serving="A"});$("plusB").onclick=()=>mut(()=>{state.scoreB++;state.serving="B"});
+$("minusA").onclick=()=>mut(()=>state.scoreA=Math.max(0,state.scoreA-1));$("minusB").onclick=()=>mut(()=>state.scoreB=Math.max(0,state.scoreB-1));
+$("serveA").onclick=()=>mut(()=>state.serving="A");$("serveB").onclick=()=>mut(()=>state.serving="B");
+$("nameAC").onchange=e=>mut(()=>state.teamA=(e.target.value.trim()||"A隊").slice(0,18));
+$("nameBC").onchange=e=>mut(()=>state.teamB=(e.target.value.trim()||"B隊").slice(0,18));
+$("swapBtn").onclick=()=>mut(()=>{[state.teamA,state.teamB]=[state.teamB,state.teamA];[state.scoreA,state.scoreB]=[state.scoreB,state.scoreA];[state.setsA,state.setsB]=[state.setsB,state.setsA];state.serving=state.serving==="A"?"B":"A"});
+$("nextSetBtn").onclick=()=>mut(()=>{if(state.scoreA>state.scoreB)state.setsA++;else if(state.scoreB>state.scoreA)state.setsB++;state.scoreA=0;state.scoreB=0;state.setNo++;state.serving=state.serving==="A"?"B":"A"});
+$("resetBtn").onclick=()=>{if(confirm("確定整場歸零？")){state={...DEFAULT,teamA:state.teamA,teamB:state.teamB};push()}};
+
+async function makeQR(){
+  const watchURL=location.origin+location.pathname+"?mode=watch&room="+encodeURIComponent(room);
+  $("watchLink").textContent=watchURL;
+  try{
+    const QR=await import("https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm");
+    await QR.toCanvas($("qr"),watchURL,{width:180,margin:1});
+  }catch(e){$("qr").style.display="none"}
+}
+init();
+</script>
+</body>
+</html>
