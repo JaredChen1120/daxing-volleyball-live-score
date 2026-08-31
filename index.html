@@ -9,7 +9,7 @@
 <style>
 :root{--bg:#07111f;--card:#101d31;--line:#26364d;--txt:#f8fafc;--mut:#9fb0c4;--a:#0ea5e9;--b:#f43f5e;--ok:#22c55e}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
-button,input{font:inherit}.hidden{display:none!important}.wrap{max-width:980px;margin:auto;padding:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px}
+button,input{font:inherit}button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}.hidden{display:none!important}.wrap{max-width:980px;margin:auto;padding:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px}
 .setup{margin-top:5vh;padding:24px}.setup h1{margin:0 0 8px;font-size:clamp(30px,6vw,50px)}.mut{color:var(--mut)}
 .row{display:flex;gap:12px;flex-wrap:wrap}.input{flex:1;min-width:180px;padding:14px 16px;border-radius:14px;border:1px solid #38506f;background:#081423;color:#fff;font-size:18px}
 .btn{border:0;border-radius:14px;padding:14px 18px;min-height:48px;color:#fff;background:#334155;font-weight:850;cursor:pointer}.primary{background:#2563eb}.good{background:#15803d}.danger{background:#b91c1c}
@@ -22,15 +22,44 @@ button,input{font:inherit}.hidden{display:none!important}.wrap{max-width:980px;m
 .score{font-size:clamp(110px,25vw,360px);line-height:.9;font-weight:1000;letter-spacing:-.06em}.serve{font-size:clamp(17px,2vw,28px);font-weight:900;color:#86efac;min-height:1.4em}
 .mid{display:flex;flex-direction:column;justify-content:center;align-items:center}.setlabel{color:var(--mut);font-weight:800}.sets{font-size:clamp(54px,8vw,110px);font-weight:1000}.setno{font-size:clamp(18px,2vw,30px);font-weight:900;color:#d7e1ee}.event{font-size:clamp(20px,3vw,36px);font-weight:950}
 .control{padding:16px;max-width:900px;margin:auto}.controlgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.ctrl{padding:15px}.ctrl:first-child{border-color:#0ea5e9;box-shadow:inset 0 0 0 2px rgba(14,165,233,.12)}.ctrl:last-child{border-color:#f43f5e;box-shadow:inset 0 0 0 2px rgba(244,63,94,.12)}.ctrl h2{margin:0 0 4px}.ctrlscore{font-size:clamp(72px,20vw,150px);line-height:.95;font-weight:1000;text-align:center;letter-spacing:-.05em;margin:4px 0}.ctrlserve{text-align:center;min-height:1.5em;color:#86efac;font-weight:900;margin-bottom:10px}.plus{width:100%;min-height:120px;border:0;border-radius:22px;color:#fff;font-size:64px;font-weight:1000;cursor:pointer}.aa{background:#0369a1}.bb{background:#be123c}
-.twobtn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.admin{margin-top:14px;padding:15px}.admin .btn{flex:1}.setbar{text-align:center;padding:12px;margin-bottom:14px;font-size:23px;font-weight:900}
+.twobtn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.admin{margin-top:14px;padding:15px}.admin .btn{flex:1}.setbar{position:relative;text-align:center;padding:12px 72px 12px 12px;margin-bottom:14px;font-size:23px;font-weight:900}.soundbtn{position:absolute;right:8px;top:50%;transform:translateY(-50%);min-height:38px;padding:6px 10px;border-radius:10px;font-size:13px}
 .share{margin-top:14px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}.share canvas{background:#fff;padding:8px;border-radius:12px}.sharelink{word-break:break-all;color:#bfdbfe}
 .watch{max-width:980px;margin:auto;padding:16px}.watch .scoreboard{min-height:auto;padding:0}.watchtitle{text-align:center;margin:12px 0;color:var(--mut);font-weight:800}
 @media(max-width:700px){.modegrid{grid-template-columns:1fr}.teams{grid-template-columns:1fr 82px 1fr;gap:7px}.score{font-size:clamp(78px,29vw,170px)}.name{font-size:clamp(20px,6vw,38px)}.controlgrid{grid-template-columns:1fr}.share{grid-template-columns:1fr;text-align:center}.share canvas{margin:auto}}
 
-/* Prevent accidental double-tap zoom on iPhone/Chrome controls */
-button, .btn, .plus, .twobtn button, input {
-  touch-action: manipulation;
+/* 手機橫向控制台：隊名清楚、比分小、+1 最大化、整頁盡量免捲動 */
+@media (orientation:landscape) and (max-height:560px){
+  html,body{overscroll-behavior:none}
+  #control.control{max-width:none;width:100%;padding:4px 6px}
+  #control>.top{display:none}
+  #control>.row{display:none}
+  #control .setbar{height:34px;margin:0 0 5px;padding:5px 66px 5px 8px;border-radius:10px;font-size:16px;line-height:24px}
+  #control .soundbtn{right:5px;min-height:26px;height:26px;padding:2px 7px;border-radius:8px;font-size:11px}
+  #control .controlgrid{grid-template-columns:1fr 1fr;gap:6px}
+  #control .ctrl{height:calc(100vh - 84px);max-height:300px;min-height:238px;padding:5px 6px;border-radius:14px;display:grid;grid-template-rows:30px 38px 18px minmax(100px,1fr) 40px;align-items:center;overflow:hidden}
+  #control .ctrl h2{margin:0;text-align:center;font-size:clamp(18px,3.4vw,27px);line-height:30px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px}
+  #control .ctrlscore{font-size:clamp(34px,7vw,48px);line-height:38px;margin:0;font-weight:1000}
+  #control .ctrlserve{height:18px;min-height:18px;margin:0;font-size:12px;line-height:18px}
+  #control .plus{height:100%;min-height:100px;border-radius:14px;font-size:clamp(64px,10vw,86px);line-height:1;font-weight:1000}
+  #control .twobtn{gap:5px;margin-top:5px}
+  #control .twobtn .btn{height:40px;min-height:40px;padding:3px 6px;border-radius:9px;font-size:14px}
+  #control .admin{margin-top:5px;padding:4px;border-radius:10px}
+  #control .admin .row{gap:5px;flex-wrap:nowrap}
+  #control .admin .btn{height:36px;min-height:36px;padding:3px 6px;border-radius:9px;font-size:12px;white-space:nowrap}
+  #control #statusC{display:none}
+  #control .share{display:none}
 }
+
+@media (orientation:landscape) and (max-height:430px){
+  #control .ctrl{height:calc(100vh - 80px);max-height:260px;min-height:220px;grid-template-rows:28px 34px 16px minmax(92px,1fr) 36px}
+  #control .ctrl h2{font-size:clamp(17px,3.1vw,24px);line-height:28px}
+  #control .ctrlscore{font-size:clamp(30px,6vw,42px);line-height:34px}
+  #control .ctrlserve{height:16px;min-height:16px;font-size:11px;line-height:16px}
+  #control .plus{min-height:92px;font-size:clamp(60px,9vw,78px)}
+  #control .twobtn .btn{height:36px;min-height:36px}
+  #control .admin .btn{height:32px;min-height:32px;font-size:11px}
+}
+
 
 </style>
 </head>
@@ -63,12 +92,12 @@ button, .btn, .plus, .twobtn button, input {
 <section id="control" class="control hidden">
   <div class="top"><div><strong>📱 手機控制台</strong><div class="tiny">ROOM <span class="roomLabel"></span></div></div><button id="backBtn" class="btn">返回</button></div>
   <div class="row" style="margin-bottom:12px"><input id="nameAC" class="input" value="A隊"><input id="nameBC" class="input" value="B隊"></div>
-  <div class="setbar card">局數 <span id="setsAC">0</span>：<span id="setsBC">0</span> ｜ 第 <span id="setNoC">1</span> 局</div>
+  <div class="setbar card">局數 <span id="setsAC">0</span>：<span id="setsBC">0</span> ｜ 第 <span id="setNoC">1</span> 局 <button id="soundBtn" class="btn soundbtn" type="button">🔊 ON</button></div>
   <div class="controlgrid">
     <div class="ctrl card"><h2 id="titleAC">A隊</h2><div id="scoreAC" class="ctrlscore">0</div><div id="serveAC" class="ctrlserve"></div><button id="plusA" class="plus aa">+1</button><div class="twobtn"><button id="minusA" class="btn">−1</button><button id="serveA" class="btn good">發球權</button></div></div>
     <div class="ctrl card"><h2 id="titleBC">B隊</h2><div id="scoreBC" class="ctrlscore">0</div><div id="serveBC" class="ctrlserve"></div><button id="plusB" class="plus bb">+1</button><div class="twobtn"><button id="minusB" class="btn">−1</button><button id="serveB" class="btn good">發球權</button></div></div>
   </div>
-  <div class="admin card"><div class="row"><button id="soundBtn" class="btn good">🔊 音效 ON</button><button id="swapBtn" class="btn">⇄ 交換場地</button><button id="nextSetBtn" class="btn primary">下一局</button><button id="resetBtn" class="btn danger">整場重置</button></div><div id="statusC" class="mut" style="margin-top:10px"></div></div>
+  <div class="admin card"><div class="row"><button id="swapBtn" class="btn">⇄ 交換場地</button><button id="nextSetBtn" class="btn primary">下一局</button><button id="resetBtn" class="btn danger">整場重置</button></div><div id="statusC" class="mut" style="margin-top:10px"></div></div>
   <div class="share card">
     <canvas id="qr" width="180" height="180"></canvas>
     <div><strong>分享給觀眾</strong><p class="mut">掃描 QR Code 後，只會看到即時比分，不會出現控制按鈕。</p><div id="watchLink" class="sharelink"></div></div>
@@ -168,35 +197,35 @@ async function init(){
   }catch(e){console.error(e);setStatus("連線失敗，請檢查 Firebase 設定")}
 }
 async function push(){render();if(remote)await set(ref(db,"games/"+room),state)}
-function mut(f){f();push()}
 
-// 控制台按鍵音：使用 Web Audio 直接產生，不需額外 MP3 檔。
-let soundOn=true, audioCtx=null;
-function tone(freq=880,duration=.075,volume=.13){
+let soundOn=true;
+let audioCtx=null;
+function playScoreSound(kind){
   if(!soundOn || mode!=="control") return;
   try{
-    audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC) return;
+    if(!audioCtx) audioCtx=new AC();
     if(audioCtx.state==="suspended") audioCtx.resume();
-    const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
     const now=audioCtx.currentTime;
-    osc.type="sine"; osc.frequency.setValueAtTime(freq,now);
-    gain.gain.setValueAtTime(volume,now);
-    gain.gain.exponentialRampToValueAtTime(.001,now+duration);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(now); osc.stop(now+duration);
-  }catch(e){console.warn("音效播放失敗",e)}
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.type="sine";
+    osc.frequency.setValueAtTime(kind==="plus"?880:360,now);
+    gain.gain.setValueAtTime(0.0001,now);
+    gain.gain.exponentialRampToValueAtTime(0.16,now+0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+0.09);
+    osc.connect(gain);gain.connect(audioCtx.destination);
+    osc.start(now);osc.stop(now+0.10);
+  }catch(e){}
 }
-function plusSound(){tone(1046.5,.08,.14)}
-function minusSound(){tone(392,.09,.12)}
-$("soundBtn").onclick=()=>{
-  soundOn=!soundOn;
-  $("soundBtn").textContent=soundOn?"🔊 音效 ON":"🔇 音效 OFF";
-  if(soundOn) tone(784,.07,.10);
-};
-$("plusA").onclick=()=>{plusSound();mut(()=>{state.scoreA++;state.serving="A"})};
-$("plusB").onclick=()=>{plusSound();mut(()=>{state.scoreB++;state.serving="B"})};
-$("minusA").onclick=()=>{minusSound();mut(()=>state.scoreA=Math.max(0,state.scoreA-1))};
-$("minusB").onclick=()=>{minusSound();mut(()=>state.scoreB=Math.max(0,state.scoreB-1))};
+function updateSoundBtn(){if($("soundBtn")) $("soundBtn").textContent=soundOn?"🔊 ON":"🔇 OFF"}
+if($("soundBtn")) $("soundBtn").onclick=()=>{soundOn=!soundOn;updateSoundBtn();if(soundOn)playScoreSound("plus")};
+updateSoundBtn();
+
+function mut(f){f();push()}
+$("plusA").onclick=()=>{playScoreSound("plus");mut(()=>{state.scoreA++;state.serving="A"})};$("plusB").onclick=()=>{playScoreSound("plus");mut(()=>{state.scoreB++;state.serving="B"})};
+$("minusA").onclick=()=>{playScoreSound("minus");mut(()=>state.scoreA=Math.max(0,state.scoreA-1))};$("minusB").onclick=()=>{playScoreSound("minus");mut(()=>state.scoreB=Math.max(0,state.scoreB-1))};
 $("serveA").onclick=()=>mut(()=>state.serving="A");$("serveB").onclick=()=>mut(()=>state.serving="B");
 $("nameAC").onchange=e=>mut(()=>state.teamA=(e.target.value.trim()||"A隊").slice(0,18));
 $("nameBC").onchange=e=>mut(()=>state.teamB=(e.target.value.trim()||"B隊").slice(0,18));
