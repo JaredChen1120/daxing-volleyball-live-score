@@ -26,6 +26,33 @@ button,input{font:inherit}.hidden{display:none!important}.wrap{max-width:980px;m
 .share{margin-top:14px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}.share canvas{background:#fff;padding:8px;border-radius:12px}.sharelink{word-break:break-all;color:#bfdbfe}
 .watch{max-width:980px;margin:auto;padding:16px}.watch .scoreboard{min-height:auto;padding:0}.watchtitle{text-align:center;margin:12px 0;color:var(--mut);font-weight:800}
 @media(max-width:700px){.modegrid{grid-template-columns:1fr}.teams{grid-template-columns:1fr 82px 1fr;gap:7px}.score{font-size:clamp(78px,29vw,170px)}.name{font-size:clamp(20px,6vw,38px)}.controlgrid{grid-template-columns:1fr}.share{grid-template-columns:1fr;text-align:center}.share canvas{margin:auto}}
+
+/* 手機橫向控制台：雙隊同畫面、比分縮小、+1 放大 */
+@media (orientation:landscape) and (max-height:520px){
+  body{overflow-y:auto}
+  #control.control{max-width:none;width:100%;padding:6px 8px}
+  #control .top{margin-bottom:5px;min-height:30px}
+  #control .top strong{font-size:16px}
+  #control .top .tiny{display:none}
+  #control #backBtn{min-height:32px;padding:5px 12px;border-radius:10px;font-size:14px}
+  #control>.row{margin-bottom:5px!important;gap:6px;flex-wrap:nowrap}
+  #control .input{min-width:0;height:34px;padding:5px 9px;border-radius:10px;font-size:15px}
+  #control .setbar{margin-bottom:6px;padding:5px 8px;border-radius:12px;font-size:17px;line-height:1.15}
+  #control .controlgrid{grid-template-columns:1fr 1fr;gap:8px}
+  #control .ctrl{padding:7px 8px;border-radius:16px;display:grid;grid-template-rows:auto auto auto 1fr auto;align-items:center}
+  #control .ctrl h2{margin:0;text-align:center;font-size:clamp(17px,3.5vw,24px);line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #control .ctrlscore{font-size:clamp(42px,10vw,64px);line-height:.82;margin:2px 0}
+  #control .ctrlserve{min-height:17px;margin-bottom:3px;font-size:13px;line-height:1.1}
+  #control .plus{min-height:82px;border-radius:16px;font-size:58px;line-height:1;font-weight:1000}
+  #control .twobtn{gap:6px;margin-top:6px}
+  #control .twobtn .btn{min-height:34px;padding:5px 8px;border-radius:10px;font-size:14px}
+  #control .admin{margin-top:6px;padding:6px;border-radius:14px}
+  #control .admin .row{gap:6px;flex-wrap:nowrap}
+  #control .admin .btn{min-height:36px;padding:5px 8px;border-radius:10px;font-size:13px;white-space:nowrap}
+  #control #statusC{display:none}
+  #control .share{display:none}
+}
+
 </style>
 </head>
 <body>
