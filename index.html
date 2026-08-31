@@ -68,7 +68,7 @@ button, .btn, .plus, .twobtn button, input {
     <div class="ctrl card"><h2 id="titleAC">A隊</h2><div id="scoreAC" class="ctrlscore">0</div><div id="serveAC" class="ctrlserve"></div><button id="plusA" class="plus aa">+1</button><div class="twobtn"><button id="minusA" class="btn">−1</button><button id="serveA" class="btn good">發球權</button></div></div>
     <div class="ctrl card"><h2 id="titleBC">B隊</h2><div id="scoreBC" class="ctrlscore">0</div><div id="serveBC" class="ctrlserve"></div><button id="plusB" class="plus bb">+1</button><div class="twobtn"><button id="minusB" class="btn">−1</button><button id="serveB" class="btn good">發球權</button></div></div>
   </div>
-  <div class="admin card"><div class="row"><button id="swapBtn" class="btn">⇄ 交換場地</button><button id="nextSetBtn" class="btn primary">下一局</button><button id="resetBtn" class="btn danger">整場重置</button></div><div id="statusC" class="mut" style="margin-top:10px"></div></div>
+  <div class="admin card"><div class="row"><button id="soundBtn" class="btn good">🔊 音效 ON</button><button id="swapBtn" class="btn">⇄ 交換場地</button><button id="nextSetBtn" class="btn primary">下一局</button><button id="resetBtn" class="btn danger">整場重置</button></div><div id="statusC" class="mut" style="margin-top:10px"></div></div>
   <div class="share card">
     <canvas id="qr" width="180" height="180"></canvas>
     <div><strong>分享給觀眾</strong><p class="mut">掃描 QR Code 後，只會看到即時比分，不會出現控制按鈕。</p><div id="watchLink" class="sharelink"></div></div>
@@ -169,8 +169,34 @@ async function init(){
 }
 async function push(){render();if(remote)await set(ref(db,"games/"+room),state)}
 function mut(f){f();push()}
-$("plusA").onclick=()=>mut(()=>{state.scoreA++;state.serving="A"});$("plusB").onclick=()=>mut(()=>{state.scoreB++;state.serving="B"});
-$("minusA").onclick=()=>mut(()=>state.scoreA=Math.max(0,state.scoreA-1));$("minusB").onclick=()=>mut(()=>state.scoreB=Math.max(0,state.scoreB-1));
+
+// 控制台按鍵音：使用 Web Audio 直接產生，不需額外 MP3 檔。
+let soundOn=true, audioCtx=null;
+function tone(freq=880,duration=.075,volume=.13){
+  if(!soundOn || mode!=="control") return;
+  try{
+    audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==="suspended") audioCtx.resume();
+    const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+    const now=audioCtx.currentTime;
+    osc.type="sine"; osc.frequency.setValueAtTime(freq,now);
+    gain.gain.setValueAtTime(volume,now);
+    gain.gain.exponentialRampToValueAtTime(.001,now+duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(now); osc.stop(now+duration);
+  }catch(e){console.warn("音效播放失敗",e)}
+}
+function plusSound(){tone(1046.5,.08,.14)}
+function minusSound(){tone(392,.09,.12)}
+$("soundBtn").onclick=()=>{
+  soundOn=!soundOn;
+  $("soundBtn").textContent=soundOn?"🔊 音效 ON":"🔇 音效 OFF";
+  if(soundOn) tone(784,.07,.10);
+};
+$("plusA").onclick=()=>{plusSound();mut(()=>{state.scoreA++;state.serving="A"})};
+$("plusB").onclick=()=>{plusSound();mut(()=>{state.scoreB++;state.serving="B"})};
+$("minusA").onclick=()=>{minusSound();mut(()=>state.scoreA=Math.max(0,state.scoreA-1))};
+$("minusB").onclick=()=>{minusSound();mut(()=>state.scoreB=Math.max(0,state.scoreB-1))};
 $("serveA").onclick=()=>mut(()=>state.serving="A");$("serveB").onclick=()=>mut(()=>state.serving="B");
 $("nameAC").onchange=e=>mut(()=>state.teamA=(e.target.value.trim()||"A隊").slice(0,18));
 $("nameBC").onchange=e=>mut(()=>state.teamB=(e.target.value.trim()||"B隊").slice(0,18));
