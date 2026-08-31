@@ -61,6 +61,31 @@ button,input{font:inherit}button{touch-action:manipulation;-webkit-tap-highlight
 }
 
 
+
+/* 2026-08-31 橫式控制台微調：雙隊框更接近方形，底部管理鍵置中並加大 */
+@media (orientation:landscape) and (max-height:560px){
+  #control.control{padding:4px 10px 6px}
+  #control .setbar{max-width:980px;margin:0 auto 6px}
+  #control .controlgrid{width:min(94vw,980px);margin:0 auto;grid-template-columns:1fr 1fr;gap:10px}
+  #control .ctrl{height:calc(100vh - 104px);max-height:310px;min-height:238px;padding:6px 7px;border-radius:16px;grid-template-rows:31px 36px 18px minmax(104px,1fr) 44px}
+  #control .ctrl h2{font-size:clamp(19px,3vw,28px);line-height:31px}
+  #control .ctrlscore{font-size:clamp(32px,5.5vw,44px);line-height:36px}
+  #control .plus{min-height:104px;font-size:clamp(68px,9vw,90px);border-radius:16px}
+  #control .twobtn .btn{height:44px;min-height:44px;font-size:15px}
+  #control .admin{width:min(72vw,760px);margin:7px auto 0;padding:5px 6px;border-radius:12px}
+  #control .admin .row{justify-content:center;gap:8px}
+  #control .admin .btn{height:48px;min-height:48px;padding:5px 10px;border-radius:11px;font-size:14px;font-weight:900}
+}
+@media (orientation:landscape) and (max-height:430px){
+  #control .controlgrid{width:min(92vw,900px);gap:8px}
+  #control .ctrl{height:calc(100vh - 100px);max-height:270px;min-height:218px;grid-template-rows:28px 32px 16px minmax(90px,1fr) 40px}
+  #control .ctrlscore{font-size:clamp(29px,5vw,39px);line-height:32px}
+  #control .plus{min-height:90px;font-size:clamp(62px,8vw,80px)}
+  #control .twobtn .btn{height:40px;min-height:40px;font-size:14px}
+  #control .admin{width:min(70vw,700px);margin-top:6px}
+  #control .admin .btn{height:44px;min-height:44px;font-size:13px}
+}
+
 </style>
 </head>
 <body>
@@ -200,32 +225,43 @@ async function push(){render();if(remote)await set(ref(db,"games/"+room),state)}
 
 let soundOn=true;
 let audioCtx=null;
-function playScoreSound(kind){
+async function ensureAudio(){
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC) return null;
+  if(!audioCtx) audioCtx=new AC();
+  if(audioCtx.state!=="running"){
+    try{await audioCtx.resume()}catch(e){}
+  }
+  return audioCtx.state==="running"?audioCtx:null;
+}
+async function playScoreSound(kind){
   if(!soundOn || mode!=="control") return;
   try{
-    const AC=window.AudioContext||window.webkitAudioContext;
-    if(!AC) return;
-    if(!audioCtx) audioCtx=new AC();
-    if(audioCtx.state==="suspended") audioCtx.resume();
-    const now=audioCtx.currentTime;
-    const osc=audioCtx.createOscillator();
-    const gain=audioCtx.createGain();
-    osc.type="sine";
-    osc.frequency.setValueAtTime(kind==="plus"?880:360,now);
+    const ctx=await ensureAudio();
+    if(!ctx) return;
+    const now=ctx.currentTime+0.01;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type="square";
+    osc.frequency.setValueAtTime(kind==="plus"?920:380,now);
     gain.gain.setValueAtTime(0.0001,now);
-    gain.gain.exponentialRampToValueAtTime(0.16,now+0.008);
-    gain.gain.exponentialRampToValueAtTime(0.0001,now+0.09);
-    osc.connect(gain);gain.connect(audioCtx.destination);
-    osc.start(now);osc.stop(now+0.10);
-  }catch(e){}
+    gain.gain.exponentialRampToValueAtTime(0.28,now+0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+0.11);
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.start(now);osc.stop(now+0.12);
+  }catch(e){console.warn("audio",e)}
 }
 function updateSoundBtn(){if($("soundBtn")) $("soundBtn").textContent=soundOn?"🔊 ON":"🔇 OFF"}
-if($("soundBtn")) $("soundBtn").onclick=()=>{soundOn=!soundOn;updateSoundBtn();if(soundOn)playScoreSound("plus")};
+if($("soundBtn")) $("soundBtn").onclick=async()=>{
+  soundOn=!soundOn;
+  updateSoundBtn();
+  if(soundOn){await ensureAudio();await playScoreSound("plus")}
+};
 updateSoundBtn();
 
 function mut(f){f();push()}
-$("plusA").onclick=()=>{playScoreSound("plus");mut(()=>{state.scoreA++;state.serving="A"})};$("plusB").onclick=()=>{playScoreSound("plus");mut(()=>{state.scoreB++;state.serving="B"})};
-$("minusA").onclick=()=>{playScoreSound("minus");mut(()=>state.scoreA=Math.max(0,state.scoreA-1))};$("minusB").onclick=()=>{playScoreSound("minus");mut(()=>state.scoreB=Math.max(0,state.scoreB-1))};
+$("plusA").onclick=async()=>{await playScoreSound("plus");mut(()=>{state.scoreA++;state.serving="A"})};$("plusB").onclick=async()=>{await playScoreSound("plus");mut(()=>{state.scoreB++;state.serving="B"})};
+$("minusA").onclick=async()=>{await playScoreSound("minus");mut(()=>state.scoreA=Math.max(0,state.scoreA-1))};$("minusB").onclick=async()=>{await playScoreSound("minus");mut(()=>state.scoreB=Math.max(0,state.scoreB-1))};
 $("serveA").onclick=()=>mut(()=>state.serving="A");$("serveB").onclick=()=>mut(()=>state.serving="B");
 $("nameAC").onchange=e=>mut(()=>state.teamA=(e.target.value.trim()||"A隊").slice(0,18));
 $("nameBC").onchange=e=>mut(()=>state.teamB=(e.target.value.trim()||"B隊").slice(0,18));
